@@ -34,12 +34,14 @@
 
     .input-area {
       display: flex;
+      flex-wrap: wrap;
       gap: 8px;
       margin-bottom: 20px;
     }
 
     #taskInput {
-      flex: 1;
+      flex: 1 1 200px;
+      min-width: 0;
       padding: 10px 12px;
       font-size: 16px;
       border: 1px solid #ccc;
@@ -51,6 +53,20 @@
       border-color: #4a90e2;
     }
 
+    #categorySelect {
+      margin-left: auto;
+      padding: 10px 8px;
+      font-size: 14px;
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      outline: none;
+    }
+
+    #categorySelect:focus {
+      border-color: #4a90e2;
+    }
+
     button {
       cursor: pointer;
       border: none;
@@ -59,6 +75,7 @@
     }
 
     #addButton {
+      flex-shrink: 0;
       padding: 10px 16px;
       background: #4a90e2;
       color: #fff;
@@ -88,8 +105,46 @@
       padding: 12px;
       margin-bottom: 8px;
       background: #fafafa;
+      border-left: 6px solid #ccc;
       border-radius: 8px;
       box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+    }
+
+    /* カテゴリーごとの色 */
+    .task-item.category-study {
+      background: #e8f1fc;
+      border-left-color: #4a90e2;
+    }
+
+    .task-item.category-work {
+      background: #fdf0e1;
+      border-left-color: #e67e22;
+    }
+
+    .task-item.category-play {
+      background: #e6f6ec;
+      border-left-color: #27ae60;
+    }
+
+    .category-label {
+      flex-shrink: 0;
+      margin-right: 10px;
+      padding: 2px 8px;
+      color: #fff;
+      font-size: 12px;
+      border-radius: 10px;
+    }
+
+    .category-study .category-label {
+      background: #2a6fbf;
+    }
+
+    .category-work .category-label {
+      background: #b85c0a;
+    }
+
+    .category-play .category-label {
+      background: #1c8049;
     }
 
     .task-text {
@@ -127,6 +182,7 @@
 
     <div class="input-area">
       <input type="text" id="taskInput" placeholder="タスクを入力">
+      <select id="categorySelect" aria-label="カテゴリー"></select>
       <button id="addButton">追加</button>
     </div>
 
@@ -137,20 +193,36 @@
 
   <script>
     // タスクを管理する配列
-    // 各タスクは { text: "内容", done: false } の形
+    // 各タスクは { text: "内容", done: false, category: "study" } の形
     const tasks = [];
 
+    // 選べるカテゴリー(色はCSSの .category-○○ で指定する)
+    const categories = [
+      { id: "study", label: "勉強" },
+      { id: "work", label: "バイト" },
+      { id: "play", label: "遊び" }
+    ];
+
     const taskInput = document.getElementById("taskInput");
+    const categorySelect = document.getElementById("categorySelect");
     const addButton = document.getElementById("addButton");
     const taskList = document.getElementById("taskList");
     const taskCount = document.getElementById("taskCount");
+
+    // カテゴリーの選択肢を作る
+    categories.forEach(function (category) {
+      const option = document.createElement("option");
+      option.value = category.id;
+      option.textContent = category.label;
+      categorySelect.appendChild(option);
+    });
 
     // タスクを追加する
     function addTask() {
       const text = taskInput.value.trim();
       if (text === "") return;
 
-      tasks.push({ text: text, done: false });
+      tasks.push({ text: text, done: false, category: categorySelect.value });
       taskInput.value = "";
       render();
     }
@@ -187,10 +259,16 @@
 
       tasks.forEach(function (task, index) {
         const li = document.createElement("li");
-        li.className = "task-item";
+        li.className = "task-item category-" + task.category;
         if (task.done) {
           li.classList.add("done");
         }
+
+        const label = document.createElement("span");
+        label.className = "category-label";
+        label.textContent = categories.find(function (category) {
+          return category.id === task.category;
+        }).label;
 
         const span = document.createElement("span");
         span.className = "task-text";
@@ -206,6 +284,7 @@
           deleteTask(index);
         });
 
+        li.appendChild(label);
         li.appendChild(span);
         li.appendChild(deleteButton);
         taskList.appendChild(li);
