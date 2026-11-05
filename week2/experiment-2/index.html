@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="misoのプロフィールページ">
+  <title>miso | プロフィール</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    /* カードを画面の中央に置く */
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 16px;
+      background: #f0f0f0;
+      color: #333333;
+      font-family: "Hiragino Sans", "Yu Gothic UI", "Meiryo", sans-serif;
+      line-height: 1.6;
+    }
+
+    /* 幅は400px。画面がそれより狭いときは画面に合わせて縮む */
+    .card {
+      width: 400px;
+      max-width: 100%;
+      padding: 32px 24px;
+      background: #ffffff;
+      border-radius: 16px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+      text-align: center;
+    }
+
+    .avatar {
+      display: block;
+      width: 100px;
+      height: 100px;
+      margin: 0 auto 16px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    .name {
+      margin: 0;
+      font-size: 24px;
+      line-height: 1.3;
+    }
+
+    .comment {
+      margin: 8px 0 20px;
+      color: #666666;
+    }
+
+    /* スキルバッジを横並びにし、入りきらない分は折り返す */
+    .skills {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+      padding: 0;
+      margin: 0;
+      list-style: none;
+    }
+
+    .skill {
+      padding: 4px 12px;
+      background: #e8e8e8;
+      border-radius: 999px;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <img class="avatar" src="https://placehold.jp/100x100.png" alt="misoのアイコン" width="100" height="100">
+    <h1 class="name">miso</h1>
+    <p class="comment">ここにひとことを書きます</p>
+    <ul class="skills" id="skills" aria-label="スキル"></ul>
+  </main>
+
+  <script>
+    // スキルを増やすときは、この配列に追加する
+    const skills = ["HTML", "CSS", "JavaScript", "Git"];
+
+    const list = document.getElementById("skills");
+
+    for (const skill of skills) {
+      const badge = document.createElement("li");
+      badge.className = "skill";
+      badge.textContent = skill;
+      list.appendChild(badge);
+    }
+  </script>
+</body>
+</html>

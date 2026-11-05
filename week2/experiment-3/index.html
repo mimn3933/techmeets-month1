@@ -181,6 +181,17 @@
       border-left-color: #27ae60;
     }
 
+    /* 締め切りを過ぎたタスク(カテゴリーの色より優先するため、その後ろに書く) */
+    .task-item.overdue {
+      background: #fbdedb;
+      border-left-color: #e74c3c;
+    }
+
+    .task-item.overdue .due-date {
+      color: #a93226;
+      font-weight: bold;
+    }
+
     .category-label {
       flex-shrink: 0;
       margin-right: 10px;
@@ -409,6 +420,19 @@
       render();
     }
 
+    // 今日の日付を "2026-12-31" の形で返す(日本時間などの端末の日付を使う)
+    function getToday() {
+      const now = new Date();
+      const month = String(now.getMonth() + 1).padStart(2, "0");
+      const day = String(now.getDate()).padStart(2, "0");
+      return now.getFullYear() + "-" + month + "-" + day;
+    }
+
+    // 未完了で締め切りを過ぎているか調べる(締め切り当日はまだ過ぎていない扱い)
+    function isOverdue(task) {
+      return !task.done && task.dueDate && task.dueDate < getToday();
+    }
+
     // 配列の内容をもとに画面を描き直す
     function render() {
       taskList.innerHTML = "";
@@ -435,6 +459,9 @@
         li.className = "task-item category-" + task.category;
         if (task.done) {
           li.classList.add("done");
+        }
+        if (isOverdue(task)) {
+          li.classList.add("overdue");
         }
 
         const label = document.createElement("span");

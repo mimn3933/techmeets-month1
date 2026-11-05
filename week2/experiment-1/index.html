@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>スライドショー</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 16px;
+      font-family: sans-serif;
+      text-align: center;
+    }
+
+    #slide {
+      display: block;
+      max-width: 100%;
+      height: auto;
+      margin: 0 auto 16px;
+    }
+
+    button {
+      padding: 8px 24px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>スライドショー</h1>
+  <img id="slide" src="https://placehold.jp/600x300.png?text=1" width="600" height="300" alt="スライド1">
+  <button id="prevButton" type="button">前へ</button>
+  <button id="nextButton" type="button">次へ</button>
+
+  <script>
+    const images = [
+      "https://placehold.jp/600x300.png?text=1",
+      "https://placehold.jp/600x300.png?text=2",
+      "https://placehold.jp/600x300.png?text=3"
+    ];
+
+    const slide = document.getElementById("slide");
+    let currentIndex = 0;
+
+    // 指定した番号の画像を表示する（端まで行ったら反対側に戻る）
+    function showSlide(index) {
+      currentIndex = (index + images.length) % images.length;
+      slide.src = images[currentIndex];
+      slide.alt = "スライド" + (currentIndex + 1);
+    }
+
+    document.getElementById("prevButton").addEventListener("click", function () {
+      showSlide(currentIndex - 1);
+    });
+
+    document.getElementById("nextButton").addEventListener("click", function () {
+      showSlide(currentIndex + 1);
+    });
+  </script>
+</body>
+</html>
