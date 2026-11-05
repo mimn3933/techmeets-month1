@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ToDoリスト</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 40px 16px;
+      background: #f2f4f7;
+      font-family: "Hiragino Sans", "Noto Sans JP", "Yu Gothic", sans-serif;
+      color: #333;
+    }
+
+    .container {
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 24px;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    }
+
+    h1 {
+      margin: 0 0 20px;
+      font-size: 24px;
+      text-align: center;
+    }
+
+    .input-area {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+
+    #taskInput {
+      flex: 1 1 200px;
+      min-width: 0;
+      padding: 10px 12px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      outline: none;
+    }
+
+    #taskInput:focus {
+      border-color: #4a90e2;
+    }
+
+    #dueDateInput {
+      flex: 1 1 160px;
+      min-width: 0;
+      padding: 10px 8px;
+      font-size: 14px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      outline: none;
+    }
+
+    #dueDateInput:focus {
+      border-color: #4a90e2;
+    }
+
+    #categorySelect {
+      margin-left: auto;
+      padding: 10px 8px;
+      font-size: 14px;
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      outline: none;
+    }
+
+    #categorySelect:focus {
+      border-color: #4a90e2;
+    }
+
+    button {
+      cursor: pointer;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+
+    #addButton {
+      flex-shrink: 0;
+      padding: 10px 16px;
+      background: #4a90e2;
+      color: #fff;
+    }
+
+    #addButton:hover {
+      background: #357abd;
+    }
+
+    .filter-area {
+      margin-bottom: 16px;
+    }
+
+    #searchInput {
+      width: 100%;
+      margin-bottom: 8px;
+      padding: 8px 12px;
+      font-size: 14px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      outline: none;
+    }
+
+    #searchInput:focus {
+      border-color: #4a90e2;
+    }
+
+    .filter-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .filter-button {
+      padding: 6px 12px;
+      background: #eef0f3;
+      color: #333;
+      font-size: 13px;
+    }
+
+    .filter-button:hover {
+      background: #dfe3e8;
+    }
+
+    /* 選択中のフィルター */
+    .filter-button[aria-pressed="true"] {
+      background: #2a6fbf;
+      color: #fff;
+    }
+
+    #taskCount {
+      margin: 0 0 12px;
+      color: #666;
+      font-size: 14px;
+      text-align: right;
+    }
+
+    #taskList {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .task-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px;
+      margin-bottom: 8px;
+      background: #fafafa;
+      border-left: 6px solid #ccc;
+      border-radius: 8px;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+    }
+
+    /* カテゴリーごとの色 */
+    .task-item.category-study {
+      background: #e8f1fc;
+      border-left-color: #4a90e2;
+    }
+
+    .task-item.category-work {
+      background: #fdf0e1;
+      border-left-color: #e67e22;
+    }
+
+    .task-item.category-play {
+      background: #e6f6ec;
+      border-left-color: #27ae60;
+    }
+
+    .category-label {
+      flex-shrink: 0;
+      margin-right: 10px;
+      padding: 2px 8px;
+      color: #fff;
+      font-size: 12px;
+      border-radius: 10px;
+    }
+
+    .category-study .category-label {
+      background: #2a6fbf;
+    }
+
+    .category-work .category-label {
+      background: #b85c0a;
+    }
+
+    .category-play .category-label {
+      background: #1c8049;
+    }
+
+    .task-text {
+      flex: 1;
+      cursor: pointer;
+      word-break: break-all;
+    }
+
+    .task-item.done .task-text {
+      text-decoration: line-through;
+      color: #aaa;
+    }
+
+    .due-date {
+      flex-shrink: 0;
+      margin-left: 8px;
+      color: #666;
+      font-size: 12px;
+    }
+
+    /* スマホ幅では入力欄を1行に収め、締め切り日はタスク名の下に表示する */
+    @media (max-width: 480px) {
+      #dueDateInput {
+        flex-basis: 120px;
+      }
+
+      .task-item {
+        flex-wrap: wrap;
+      }
+
+      .due-date {
+        order: 1;
+        width: 100%;
+        margin: 6px 0 0;
+        text-align: right;
+      }
+    }
+
+    .delete-button {
+      margin-left: 12px;
+      padding: 6px 10px;
+      background: #e74c3c;
+      color: #fff;
+    }
+
+    .delete-button:hover {
+      background: #c0392b;
+    }
+
+    .empty-message {
+      text-align: center;
+      color: #999;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>ToDoリスト</h1>
+
+    <div class="input-area">
+      <input type="text" id="taskInput" placeholder="タスクを入力">
+      <input type="date" id="dueDateInput" aria-label="締め切り日">
+      <select id="categorySelect" aria-label="カテゴリー"></select>
+      <button id="addButton">追加</button>
+    </div>
+
+    <div class="filter-area">
+      <input type="search" id="searchInput" placeholder="タスク名で検索" aria-label="タスク名で検索">
+      <div class="filter-group" id="statusFilter" role="group" aria-label="完了状態で絞り込み"></div>
+    </div>
+
+    <p id="taskCount"></p>
+
+    <ul id="taskList"></ul>
+  </div>
+
+  <script>
+    // Local Storage に保存するときのキー
+    const STORAGE_KEY = "todo-tasks";
+
+    // 選べるカテゴリー(色はCSSの .category-○○ で指定する)
+    const categories = [
+      { id: "study", label: "勉強" },
+      { id: "work", label: "バイト" },
+      { id: "play", label: "遊び" }
+    ];
+
+    // タスクを管理する配列(保存済みのタスクがあれば読み込む)
+    // 各タスクは { text: "内容", done: false, category: "study", dueDate: "2026-12-31" } の形
+    // dueDate は締め切り日で、未設定なら空文字(機能追加より前に保存したタスクには無い)
+    const tasks = loadTasks();
+
+    // 状態フィルターの選択肢
+    const statusOptions = [
+      { id: "all", label: "すべて" },
+      { id: "active", label: "未完了のみ" },
+      { id: "done", label: "完了済みのみ" }
+    ];
+
+    // 現在選択中の状態フィルター
+    let currentStatus = "all";
+
+    const taskInput = document.getElementById("taskInput");
+    const dueDateInput = document.getElementById("dueDateInput");
+    const categorySelect = document.getElementById("categorySelect");
+    const addButton = document.getElementById("addButton");
+    const taskList = document.getElementById("taskList");
+    const taskCount = document.getElementById("taskCount");
+    const searchInput = document.getElementById("searchInput");
+    const statusFilter = document.getElementById("statusFilter");
+
+    // カテゴリーの選択肢を作る
+    categories.forEach(function (category) {
+      const option = document.createElement("option");
+      option.value = category.id;
+      option.textContent = category.label;
+      categorySelect.appendChild(option);
+    });
+
+    // 状態フィルターのボタンを作る(最初は「すべて」を選択状態にする)
+    statusOptions.forEach(function (option) {
+      const button = document.createElement("button");
+      button.className = "filter-button";
+      button.textContent = option.label;
+      button.setAttribute("aria-pressed", String(option.id === currentStatus));
+      button.addEventListener("click", function () {
+        statusFilter.querySelectorAll("button").forEach(function (other) {
+          other.setAttribute("aria-pressed", String(other === button));
+        });
+        currentStatus = option.id;
+        render();
+      });
+      statusFilter.appendChild(button);
+    });
+
+    // タスクが状態フィルターと検索キーワードの両方に合うか調べる
+    function matchesFilter(task) {
+      const statusOk =
+        currentStatus === "all" ||
+        (currentStatus === "done" && task.done) ||
+        (currentStatus === "active" && !task.done);
+      const keyword = searchInput.value.trim().toLowerCase();
+      return statusOk && task.text.toLowerCase().includes(keyword);
+    }
+
+    // Local Storage からタスクを読み込む
+    // 読み込めないときや壊れたデータは無視して、画面が動かなくならないようにする
+    function loadTasks() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+        if (!Array.isArray(saved)) return [];
+
+        return saved.filter(function (task) {
+          return (
+            task !== null &&
+            typeof task.text === "string" &&
+            typeof task.done === "boolean" &&
+            categories.some(function (category) {
+              return category.id === task.category;
+            })
+          );
+        });
+      } catch (error) {
+        console.warn("タスクを読み込めませんでした", error);
+        return [];
+      }
+    }
+
+    // タスクを Local Storage に保存する
+    function saveTasks() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+      } catch (error) {
+        console.warn("タスクを保存できませんでした", error);
+      }
+    }
+
+    // タスクを追加する
+    function addTask() {
+      const text = taskInput.value.trim();
+      if (text === "") return;
+
+      tasks.push({
+        text: text,
+        done: false,
+        category: categorySelect.value,
+        dueDate: dueDateInput.value
+      });
+      saveTasks();
+      taskInput.value = "";
+      dueDateInput.value = "";
+      render();
+    }
+
+    // 完了状態を切り替える
+    function toggleTask(index) {
+      tasks[index].done = !tasks[index].done;
+      saveTasks();
+      render();
+    }
+
+    // タスクを削除する
+    function deleteTask(index) {
+      tasks.splice(index, 1);
+      saveTasks();
+      render();
+    }
+
+    // 配列の内容をもとに画面を描き直す
+    function render() {
+      taskList.innerHTML = "";
+
+      // 完了件数/総件数を表示する
+      const doneCount = tasks.filter(function (task) {
+        return task.done;
+      }).length;
+      taskCount.textContent = doneCount + "/" + tasks.length + "件完了";
+
+      if (!tasks.some(matchesFilter)) {
+        const p = document.createElement("p");
+        p.className = "empty-message";
+        p.textContent = tasks.length === 0 ? "タスクはありません" : "条件に合うタスクはありません";
+        taskList.appendChild(p);
+        return;
+      }
+
+      // index は tasks 配列での位置なので、絞り込み中でも正しいタスクを操作できる
+      tasks.forEach(function (task, index) {
+        if (!matchesFilter(task)) return;
+
+        const li = document.createElement("li");
+        li.className = "task-item category-" + task.category;
+        if (task.done) {
+          li.classList.add("done");
+        }
+
+        const label = document.createElement("span");
+        label.className = "category-label";
+        label.textContent = categories.find(function (category) {
+          return category.id === task.category;
+        }).label;
+
+        const span = document.createElement("span");
+        span.className = "task-text";
+        span.textContent = task.text;
+        span.addEventListener("click", function () {
+          toggleTask(index);
+        });
+
+        const deleteButton = document.createElement("button");
+        deleteButton.className = "delete-button";
+        deleteButton.textContent = "削除";
+        deleteButton.addEventListener("click", function () {
+          deleteTask(index);
+        });
+
+        li.appendChild(label);
+        li.appendChild(span);
+
+        // 締め切り日が設定されているタスクだけ表示する
+        if (task.dueDate) {
+          const dueDate = document.createElement("span");
+          dueDate.className = "due-date";
+          dueDate.textContent = "締切: " + task.dueDate;
+          li.appendChild(dueDate);
+        }
+
+        li.appendChild(deleteButton);
+        taskList.appendChild(li);
+      });
+    }
+
+    addButton.addEventListener("click", addTask);
+
+    // 入力するたびに検索結果を更新する
+    searchInput.addEventListener("input", render);
+
+    // Enterキーでも追加できるようにする
+    taskInput.addEventListener("keydown", function (e) {
+      if (e.key === "Enter" && !e.isComposing) {
+        addTask();
+      }
+    });
+
+    render();
+  </script>
+</body>
+</html>
