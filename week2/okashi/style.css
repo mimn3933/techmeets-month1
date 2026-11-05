@@ -1,0 +1,68 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 32px 16px;
+  background-color: #fdf8f3;
+  color: #4a3b32;
+  font-family: "Hiragino Sans", "Yu Gothic", "Meiryo", sans-serif;
+  line-height: 1.6;
+}
+
+.page-header {
+  margin-bottom: 32px;
+  text-align: center;
+}
+
+.page-header h1 {
+  margin: 0 0 8px;
+  font-size: 2rem;
+}
+
+.page-header p {
+  margin: 0;
+}
+
+/* カードの並び：横に並べ、入りきらなければ折り返す */
+.cards {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 24px;
+  max-width: 1080px;
+  margin: 0 auto;
+}
+
+/* 基準幅280pxで余白を分け合う。広い画面でも340pxまでに抑える */
+.card {
+  flex: 1 1 280px;
+  max-width: 340px;
+  overflow: hidden;
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(74, 59, 50, 0.15);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* マウスを乗せると少し浮き上がる */
+.card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 10px 20px rgba(74, 59, 50, 0.2);
+}
+
+.card img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.card h2 {
+  margin: 16px 16px 8px;
+  font-size: 1.25rem;
+}
+
+.card p {
+  margin: 0 16px 16px;
+}
