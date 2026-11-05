@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ToDoリスト</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 40px 16px;
+      background: #f2f4f7;
+      font-family: "Hiragino Sans", "Noto Sans JP", "Yu Gothic", sans-serif;
+      color: #333;
+    }
+
+    .container {
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 24px;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    }
+
+    h1 {
+      margin: 0 0 20px;
+      font-size: 24px;
+      text-align: center;
+    }
+
+    .input-area {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+
+    #taskInput {
+      flex: 1;
+      padding: 10px 12px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      outline: none;
+    }
+
+    #taskInput:focus {
+      border-color: #4a90e2;
+    }
+
+    button {
+      cursor: pointer;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+
+    #addButton {
+      padding: 10px 16px;
+      background: #4a90e2;
+      color: #fff;
+    }
+
+    #addButton:hover {
+      background: #357abd;
+    }
+
+    #taskCount {
+      margin: 0 0 12px;
+      color: #666;
+      font-size: 14px;
+      text-align: right;
+    }
+
+    #taskList {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .task-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px;
+      margin-bottom: 8px;
+      background: #fafafa;
+      border-radius: 8px;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+    }
+
+    .task-text {
+      flex: 1;
+      cursor: pointer;
+      word-break: break-all;
+    }
+
+    .task-item.done .task-text {
+      text-decoration: line-through;
+      color: #aaa;
+    }
+
+    .delete-button {
+      margin-left: 12px;
+      padding: 6px 10px;
+      background: #e74c3c;
+      color: #fff;
+    }
+
+    .delete-button:hover {
+      background: #c0392b;
+    }
+
+    .empty-message {
+      text-align: center;
+      color: #999;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>ToDoリスト</h1>
+
+    <div class="input-area">
+      <input type="text" id="taskInput" placeholder="タスクを入力">
+      <button id="addButton">追加</button>
+    </div>
+
+    <p id="taskCount"></p>
+
+    <ul id="taskList"></ul>
+  </div>
+
+  <script>
+    // タスクを管理する配列
+    // 各タスクは { text: "内容", done: false } の形
+    const tasks = [];
+
+    const taskInput = document.getElementById("taskInput");
+    const addButton = document.getElementById("addButton");
+    const taskList = document.getElementById("taskList");
+    const taskCount = document.getElementById("taskCount");
+
+    // タスクを追加する
+    function addTask() {
+      const text = taskInput.value.trim();
+      if (text === "") return;
+
+      tasks.push({ text: text, done: false });
+      taskInput.value = "";
+      render();
+    }
+
+    // 完了状態を切り替える
+    function toggleTask(index) {
+      tasks[index].done = !tasks[index].done;
+      render();
+    }
+
+    // タスクを削除する
+    function deleteTask(index) {
+      tasks.splice(index, 1);
+      render();
+    }
+
+    // 配列の内容をもとに画面を描き直す
+    function render() {
+      taskList.innerHTML = "";
+
+      // 完了件数/総件数を表示する
+      const doneCount = tasks.filter(function (task) {
+        return task.done;
+      }).length;
+      taskCount.textContent = doneCount + "/" + tasks.length + "件完了";
+
+      if (tasks.length === 0) {
+        const p = document.createElement("p");
+        p.className = "empty-message";
+        p.textContent = "タスクはありません";
+        taskList.appendChild(p);
+        return;
+      }
+
+      tasks.forEach(function (task, index) {
+        const li = document.createElement("li");
+        li.className = "task-item";
+        if (task.done) {
+          li.classList.add("done");
+        }
+
+        const span = document.createElement("span");
+        span.className = "task-text";
+        span.textContent = task.text;
+        span.addEventListener("click", function () {
+          toggleTask(index);
+        });
+
+        const deleteButton = document.createElement("button");
+        deleteButton.className = "delete-button";
+        deleteButton.textContent = "削除";
+        deleteButton.addEventListener("click", function () {
+          deleteTask(index);
+        });
+
+        li.appendChild(span);
+        li.appendChild(deleteButton);
+        taskList.appendChild(li);
+      });
+    }
+
+    addButton.addEventListener("click", addTask);
+
+    // Enterキーでも追加できるようにする
+    taskInput.addEventListener("keydown", function (e) {
+      if (e.key === "Enter" && !e.isComposing) {
+        addTask();
+      }
+    });
+
+    render();
+  </script>
+</body>
+</html>
